@@ -7,7 +7,7 @@ variables:
 
 deploy-job:
     stage: deploy
-    image: python-3.11.slim
+    image: python:3.11-slim
     script:
         - echo "Install Ansible"
         - python3 -m pip install --user ansible
