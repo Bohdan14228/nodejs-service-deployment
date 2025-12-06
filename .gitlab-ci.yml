@@ -2,7 +2,7 @@ stages:
     - deploy
 
 variables:
-    ANSIBLE_HOSTS_IP: "15.236.35.86"
+    ANSIBLE_HOSTS_IP: "13.37.239.11"
     ANSIBLE_USER_HOST: "ubuntu"
 
 deploy-job:
@@ -11,13 +11,24 @@ deploy-job:
     script:
         - echo "Install Ansible"
         - python3 -m pip install --user ansible
+
         # Добавляем /root/.local/bin в переменную окружения PATH
         - export PATH="/root/.local/bin:$PATH"
         - ansible --version
 
         - echo "Configuring SSH key..."
-        #- eval $(ssh-agent -s)
-        #- echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - # Добавление ключа в ssh-agent
+        - eval $(ssh-agent -s)
+        - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - # Добавление ключа в ssh-agent
 
-        - echo "Creating dynamic inventory..."
-        - ls -la
+        - echo "Add host to inventory..."
+        - cd ansible
+        - echo "[app]" >> ./inventory.ini
+        - echo "$ANSIBLE_HOSTS_IP ansible_user=ubuntu ansible_port=22" >> ./inventory.ini
+        - echo "Running Ansible Playbook..."
+
+        - ansible-playbook -i inventory.ini setup.yaml --tags app
+
+        - git --version
+  
+    only:
+        - main
