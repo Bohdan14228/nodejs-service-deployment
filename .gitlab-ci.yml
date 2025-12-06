@@ -11,4 +11,6 @@ deploy-job:
     script:
         - echo "Install Ansible"
         - python3 -m pip install --user ansible
+        # Добавляем /root/.local/bin в переменную окружения PATH
+        - export PATH="/root/.local/bin:$PATH"
         - ansible --version
