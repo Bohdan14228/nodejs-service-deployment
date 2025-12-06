@@ -16,8 +16,8 @@ deploy-job:
         - ansible --version
 
         - echo "Configuring SSH key..."
-        - eval $(ssh-agent -s)
-        - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - # Добавление ключа в ssh-agent
+        #- eval $(ssh-agent -s)
+        #- echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - # Добавление ключа в ssh-agent
 
         - echo "Creating dynamic inventory..."
         - ls -la
