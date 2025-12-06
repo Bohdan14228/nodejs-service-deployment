@@ -29,7 +29,7 @@ deploy-job:
         - echo "Running Ansible Playbook..."
 
         - export ANSIBLE_HOST_KEY_CHECKING=False #говорим ансиблу чтобы убрал фингерпринт
-        - ansible-playbook -i inventory.ini setup.yaml webserver   #--tags webserver - для выбора тасков
+        - ansible-playbook -i inventory.ini setup.yaml -l webserver   #--tags webserver - для выбора тасков
   
     only:
         - main
