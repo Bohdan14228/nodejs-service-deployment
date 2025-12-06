@@ -24,12 +24,12 @@ deploy-job:
 
         - echo "Add host to inventory..."
         - cd ansible
-        - echo "[app]" >> ./inventory.ini
+        - echo "[webserver]" >> ./inventory.ini
         - echo "$ANSIBLE_HOSTS_IP ansible_user=ubuntu ansible_port=22" >> ./inventory.ini
         - echo "Running Ansible Playbook..."
 
         - export ANSIBLE_HOST_KEY_CHECKING=False #говорим ансиблу чтобы убрал фингерпринт
-        - ansible-playbook -i inventory.ini setup.yaml --tags app
+        - ansible-playbook -i inventory.ini setup.yaml --tags webserver
   
     only:
         - main
