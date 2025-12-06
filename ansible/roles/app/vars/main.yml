@@ -1,0 +1,5 @@
+---
+node_version_string: "20.x" 
+nodesource_script_path: "/tmp/nodesource_setup.sh"
+app_dir: "/home/ubuntu/simple-node-app"
+app_service_name: "nodeservice"

@@ -1,0 +1,89 @@
+---
+- name: 1. Ensure curl is installed (required to download setup script)
+  ansible.builtin.apt:
+    name: curl
+    state: present
+    update_cache: yes
+  
+- name: 2. Download the NodeSource setup script for version {{ node_version_string }}
+  ansible.builtin.get_url:
+    url: "https://deb.nodesource.com/setup_{{ node_version_string }}"
+    dest: "{{ nodesource_script_path }}"
+    mode: '0755' # Делаем скрипт исполняемым
+
+- name: 3. Run the NodeSource setup script to add PPA
+  # Выполнение скрипта, который добавляет репозиторий и обновляет кэш APT.
+  ansible.builtin.shell: "bash {{ nodesource_script_path }}"
+  # Эта команда запускается с 'become: yes' (sudo)
+
+- name: 4. Install Node.js (and npm) package
+  ansible.builtin.apt:
+    name: nodejs
+    state: present
+    # update_cache: yes # Не обязательно, так как скрипт NodeSource уже обновил его
+
+- name: 5. Verify Node.js installation (Optional Check)
+  ansible.builtin.command: node -v
+  register: node_version_output
+  changed_when: false
+
+- name: Display Node.js version
+  ansible.builtin.debug:
+    msg: "Node.js successfully installed: {{ node_version_output.stdout }}"
+
+# --- Развертывание кода (КОПИРОВАНИЕ) ---
+
+- name: Ensure application directory exists
+  ansible.builtin.file:
+    path: "{{ app_dir }}"
+    state: directory
+    owner: ubuntu
+    group: ubuntu
+    mode: '0755'
+
+- name: Clone application repository
+  ansible.builtin.git:
+    repo: "https://github.com/Bohdan14228/simple-nodejs.git" 
+    dest: "{{ app_dir }}"
+    version: main # или ветка, которую вы хотите развернуть
+    force: yes
+  become: no
+  become_user: ubuntu # Клонируем под обычным пользователем
+
+- name: Install Node.js dependencies (runs 'npm install')
+  # NOTE: npm install должен выполняться под пользователем ubuntu, а не root!
+  ansible.builtin.npm:
+    path: "{{ app_dir }}"
+    state: present
+  become: no # Отключаем sudo для этой задачи
+  become_user: ubuntu
+
+# Это опционально, если у вас есть скрипт сборки в package.json
+#- name: Build the application (e.g., compile TypeScript or frontend assets)
+#  ansible.builtin.command: npm run build
+#  args:
+#    chdir: "/home/ubuntu/your_app"
+#  become: no
+#  become_user: ubuntu
+
+# --- Настройка Systemd Service ---
+
+# 1. Создаем Unit-файл для systemd
+- name: Create systemd service unit file
+  ansible.builtin.template:
+    src: nodeservice.service.j2 # Будет создан в папке templates/
+    dest: /etc/systemd/system/{{ app_service_name }}.service
+    owner: root
+    group: root
+    mode: '0644'
+  notify: 
+    - Reload systemd
+    - Restart nodeservice
+
+# 2. Запускаем и включаем сервис
+- name: Start and enable the Node.js service
+  ansible.builtin.systemd:
+    name: "{{ app_service_name }}"
+    state: started
+    enabled: yes
+    daemon_reload: yes

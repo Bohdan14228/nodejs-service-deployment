@@ -1,0 +1,22 @@
+---
+- name: Install Nginx
+  ansible.builtin.apt:
+    name: nginx
+    state: latest
+    update_cache: yes
+
+- name: Copy Nginx configuration file
+  ansible.builtin.template:
+    src: nginx.conf.j2 # Ищет в roles/nginx/templates/
+    dest: /etc/nginx/sites-available/default
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Restart Nginx
+
+- name: Enable site configuration (create symlink)
+  ansible.builtin.file:
+    src: /etc/nginx/sites-available/default
+    dest: /etc/nginx/sites-enabled/default
+    state: link
+    # Этот шаг опционален, если ваш дистрибутив уже настроен на использование sites-available
