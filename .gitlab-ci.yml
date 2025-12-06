@@ -11,6 +11,19 @@ deploy-job:
     script:
         - apt-get update && apt-get install -y openssh-client sshpass git
 
+        #Terraform
+        - wget -O- https://apt.releases.hashicorp.com/gpg | gpg --dearmor > /usr/share/keyrings/hashicorp-archive-keyring.gpg
+        - export OS_CODENAME=$(grep -oP '(?<=UBUNTU_CODENAME=).*' /etc/os-release || lsb_release -cs)
+        - echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $OS_CODENAME main" > /etc/apt/sources.list.d/hashicorp.list
+        - sudo apt update && sudo apt install terraform
+        
+        - git clone https://github.com/Bohdan14228/iac-aws.git
+        - cd iac-aws
+        - terraform init
+        - terraform plan
+        - terraform apply -auto-remove
+        - cd
+
         - echo "Install Ansible"
         - python3 -m pip install --user ansible
 
@@ -25,7 +38,7 @@ deploy-job:
         - echo "Add host to inventory..."
         - cd ansible
         - echo "[webserver]" >> ./inventory.ini
-        - echo "$ANSIBLE_HOSTS_IP ansible_user=ubuntu ansible_port=22" >> ./inventory.ini
+        - echo "$ANSIBLE_HOSTS_IP ansible_user=ubuntu ansible_port=22 ansible_ssh_private_key_file=~/iac-aws/terraform_pem" >> ./inventory.ini
         - echo "Running Ansible Playbook..."
 
         - export ANSIBLE_HOST_KEY_CHECKING=False #говорим ансиблу чтобы убрал фингерпринт
