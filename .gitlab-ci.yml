@@ -30,7 +30,7 @@ deploy-job:
           EOF
         - terraform init
         - terraform plan
-        - terraform apply -auto-remove
+        - terraform apply -auto-approve
         - export INSTANCE_IP=$(terraform output -raw instance_public_ip) 
         - cd ..
 
