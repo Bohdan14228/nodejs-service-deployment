@@ -1,6 +1,9 @@
 stages:
     - deploy
 
+variables:
+        SSH_NAME: "gitlab_runner_key_dec_2025"
+
 deploy-job:
     stage: deploy
     image: python:3.11-slim
@@ -25,7 +28,7 @@ deploy-job:
           cat << EOF > terraform.tfvars
           access_key = "$AWS_ACCESS_KEY_ID"
           secret_key = "$AWS_SECRET_KEY_ID"
-          key_name = "terraform_pem"
+          key_name = $SSH_NAME
           region = "eu-west-3"
           EOF
         - terraform init
@@ -41,7 +44,7 @@ deploy-job:
         - echo "Add host to inventory..."
         - cd ansible
         - echo "[webserver]" >> ./inventory.ini
-        - echo "$INSTANCE_IP ansible_user=ubuntu ansible_port=22 ansible_ssh_private_key_file=~/iac-aws/terraform_pem" >> ./inventory.ini
+        - echo "$INSTANCE_IP ansible_user=ubuntu ansible_port=22 ansible_ssh_private_key_file=~/iac-aws/$SSH_NAME" >> ./inventory.ini
         - echo "Running Ansible Playbook..."
 
         - export ANSIBLE_HOST_KEY_CHECKING=False #говорим ансиблу чтобы убрал фингерпринт
