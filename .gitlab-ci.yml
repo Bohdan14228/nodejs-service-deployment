@@ -14,3 +14,10 @@ deploy-job:
         # Добавляем /root/.local/bin в переменную окружения PATH
         - export PATH="/root/.local/bin:$PATH"
         - ansible --version
+
+        - echo "Configuring SSH key..."
+        - eval $(ssh-agent -s)
+        - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - # Добавление ключа в ssh-agent
+
+        - echo "Creating dynamic inventory..."
+        - ls -la
