@@ -20,6 +20,11 @@ deploy-job:
         
         - git clone https://github.com/Bohdan14228/iac-aws.git
         - cd iac-aws
+        - touch terraform.tfvars
+        - echo "access_key = $AWS_ACCESS_KEY_ID\n
+                secret_key = $AWS_SECRET_KEY_ID\n
+                key_name = \"you_name_key\"\n
+                region = \"eu-west-3\""" > terraform.tfvars
         - terraform init
         - terraform plan
         - terraform apply -auto-remove
