@@ -25,7 +25,7 @@ deploy-job:
           cat << EOF > terraform.tfvars
           access_key = "$AWS_ACCESS_KEY_ID"
           secret_key = "$AWS_SECRET_KEY_ID"
-          key_name = "you_name_key"
+          key_name = "terraform_pem"
           region = "eu-west-3"
           EOF
         - terraform init
