@@ -5,11 +5,12 @@ deploy-job:
     stage: deploy
     image: python:3.11-slim
     script:
-        - apt-get update && apt-get install -y openssh-client sshpass git wget gnupg
+        - apt-get update && apt-get install -y openssh-client sshpass git wget gnupg lsb-release software-properties-common
 
         - echo "Install Terraform"
         - wget -O - https://apt.releases.hashicorp.com/gpg | gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
-        - echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(grep -oP '(?<=UBUNTU_CODENAME=).*' /etc/os-release || lsb_release -cs) main" > /etc/apt/sources.list.d/hashicorp.list
+        - export OS_CODENAME=$(lsb_release -cs) # Надежно получает кодовое имя
+        - echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $OS_CODENAME main" > /etc/apt/sources.list.d/hashicorp.list
         - apt update && apt install terraform
 
         - echo "Install Ansible"
