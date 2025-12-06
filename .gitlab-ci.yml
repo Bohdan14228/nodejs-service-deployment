@@ -9,6 +9,8 @@ deploy-job:
     stage: deploy
     image: python:3.11-slim
     script:
+        - apt-get update && apt-get install -y openssh-client sshpass git
+
         - echo "Install Ansible"
         - python3 -m pip install --user ansible
 
@@ -27,8 +29,6 @@ deploy-job:
         - echo "Running Ansible Playbook..."
 
         - ansible-playbook -i inventory.ini setup.yaml --tags app
-
-        - git --version
   
     only:
         - main
